@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+ 
+   
+      postgres:
+           image: "postgres:latest"
+      redis:
+           image: "redis:latest"
+      nginx:
+           restart: always
+
+           build: 
+
+                context: ./nginx
+           ports:
+                  - "4000:80"
+
+
+      worker:
+
+            build:
+                
+                  context: ./worker
+            volumes:
+                  - /worker/node_modules
+                  - ./worker:/worker
+            environment:
+                  - REDIS_HOST=redis 
+                  - REDIS_PORT=6379
+                  
+        
+      client:
+           build:
+               
+                  context: ./client
+           volumes:
+                  - /client/node_modules
+                  - ./client:/client
+        
+      api: 
+            build:
+                
+                  context: ./server
+            volumes:
+                  - /server/node_modules
+                  - ./server:/server
+            environment:
+                 - REDIS_HOST=redis 
+                 - REDIS_PORT=6379
+                 - PGUSER=postgres
+                 - PGHOST=postgres
+                 - PGDATABASE=postgres
+                 - PGPASSWORD=postgres_password
+                 - PGPORT=5432
